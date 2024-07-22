@@ -15,11 +15,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  private readonly users: RegisterUserDto[] = [];
-
   async registration(user: RegisterUserDto): Promise<User> {
     const userDto = this.usersRepository.create(user);
-    user.password = await bcrypt.hash(user.password, 10);
+    userDto.password = await bcrypt.hash(user.password, 10);
     return this.usersRepository.save(userDto);
   }
 
@@ -46,14 +44,10 @@ export class AuthService {
     };
   }
 
-  getMe(username: string): RegisterUserDto {
-    return this.users.find((user) => user.username === username);
-  }
-
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.findByUsername(username);
-    console.log({ user });
-    if (user) {
+    const passwordComparing = await bcrypt.compare(password, user.password);
+    if (user && passwordComparing) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
       return result;
