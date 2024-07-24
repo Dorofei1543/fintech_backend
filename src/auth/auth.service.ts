@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,10 +16,18 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async registration(user: RegisterUserDto): Promise<User> {
+  async registration(
+    user: RegisterUserDto,
+  ): Promise<{ accessToken: any; refreshToken: any }> {
     const userDto = this.usersRepository.create(user);
     userDto.password = await bcrypt.hash(user.password, 10);
-    return this.usersRepository.save(userDto);
+    const { password, ...payload } = await this.usersRepository.save(userDto);
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   async login(
@@ -46,9 +55,7 @@ export class AuthService {
 
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.findByUsername(username);
-    const passwordComparing = await bcrypt.compare(password, user.password);
-    if (user && passwordComparing) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    if (user && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user;
       return result;
     }

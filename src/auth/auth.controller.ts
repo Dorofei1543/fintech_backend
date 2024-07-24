@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Post, UsePipes } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/user.dto';
 import { User } from './entities/user.entity';
@@ -11,7 +11,9 @@ export class AuthController {
 
   @Post('registration')
   @UsePipes(new ZodValidationPipe(registerUserSchema))
-  async registration(@Body() user: RegisterUserDto): Promise<User> {
+  async registration(
+    @Body() user: RegisterUserDto,
+  ): Promise<{ accessToken: any; refreshToken: any }> {
     return this.authService.registration(user);
   }
 
@@ -22,10 +24,10 @@ export class AuthController {
     return this.authService.login(loginUserDto);
   }
 
-  @Get('me')
-  async getAllUsers(@Query() login: string): Promise<RegisterUserDto> {
-    return this.authService.getMe(login);
-  }
+  // @Get('me')
+  // async getAllUsers(@Query() login: string): Promise<RegisterUserDto> {
+  //   return this.authService.getMe(login);
+  // }
 
   @Post('refresh')
   async refresh(@Body('refresh_token') token: string) {
