@@ -11,8 +11,8 @@ export class Currency {
   @Column({ type: 'float' })
   price: number;
 
-  @Column()
-  icon: string;
+  @Column({ type: 'bytea' })
+  icon: Buffer;
 
   @Column({ type: 'float' })
   priceChange: number;

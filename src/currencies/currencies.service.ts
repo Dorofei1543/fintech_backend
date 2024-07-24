@@ -19,11 +19,11 @@ export class CurrenciesService {
     return this.currencyRepository.findOne({ where: { id } });
   }
 
-  async create(currency: Currency): Promise<Currency> {
+  async create(currency: Partial<Currency>): Promise<Currency> {
     return this.currencyRepository.save(currency);
   }
 
-  async update(id: number, currency: Currency): Promise<void> {
+  async update(id: number, currency: Partial<Currency>): Promise<void> {
     await this.currencyRepository.update(id, currency);
   }
 
